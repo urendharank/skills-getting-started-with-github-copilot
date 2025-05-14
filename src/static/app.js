@@ -35,6 +35,44 @@ document.addEventListener("DOMContentLoaded", () => {
         option.textContent = name;
         activitySelect.appendChild(option);
       });
+
+      // Fetch all activity cards
+      const activityCards = document.querySelectorAll(".activity-card");
+
+      activityCards.forEach((card) => {
+        const activityName = card.querySelector("h4").textContent;
+
+        // Fetch participants for the activity
+        fetch(`/activities/${activityName}/participants`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch participants");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Create participants section
+            const participantsSection = document.createElement("div");
+            participantsSection.classList.add("participants");
+
+            const participantsTitle = document.createElement("h5");
+            participantsTitle.textContent = "Participants";
+            participantsSection.appendChild(participantsTitle);
+
+            const participantsList = document.createElement("ul");
+            data.participants.forEach((participant) => {
+              const listItem = document.createElement("li");
+              listItem.textContent = participant;
+              participantsList.appendChild(listItem);
+            });
+
+            participantsSection.appendChild(participantsList);
+            card.appendChild(participantsSection);
+          })
+          .catch((error) => {
+            console.error("Error fetching participants:", error);
+          });
+      });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
